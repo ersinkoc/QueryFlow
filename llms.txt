@@ -1,0 +1,76 @@
+# QueryFlow
+
+> Intelligent data fetching with predictive caching, offline-first sync, and real-time subscriptions.
+
+## Install
+
+```bash
+npm install @oxog/queryflow
+```
+
+## Basic Usage
+
+```typescript
+import { createClient, query } from '@oxog/queryflow';
+
+const client = createClient({ baseUrl: '/api' });
+const users = await query('/users').fetch();
+```
+
+## API Summary
+
+### Core
+- `createClient(config?)` - Create client instance
+- `query(url, options?)` - Fetch data
+- `mutation(url, options?)` - Modify data
+- `subscribe(url, options?)` - Real-time updates
+
+### Cache
+- `client.cache.get(key)` - Get cached data
+- `client.cache.set(key, data)` - Set cached data
+- `client.cache.update(key, updater)` - Update with Immer-style
+- `client.cache.invalidate(pattern)` - Invalidate queries
+
+### React Hooks
+- `useQuery(url, options?)` - Query hook
+- `useMutation(url, options?)` - Mutation hook
+- `useSubscription(url, options?)` - Subscription hook
+
+### Plugins
+- `offlineSync` - IndexedDB + background sync
+- `realtime` - WebSocket/SSE native support
+- `devtools` - Time-travel debugging
+
+## Common Patterns
+
+### Query with Params
+```typescript
+const user = useQuery('/users/:id', { params: { id: '123' } });
+```
+
+### Optimistic Update
+```typescript
+const update = useMutation('/users/:id', {
+  method: 'PATCH',
+  optimistic: (cache, input) => cache.update('/users/:id', d => Object.assign(d, input)),
+});
+```
+
+### Real-time Subscription
+```typescript
+const messages = useSubscription('/chat', { transport: 'websocket' });
+```
+
+## Errors
+
+| Code | Meaning | Solution |
+|------|---------|----------|
+| `NETWORK_ERROR` | Network request failed | Check connection, retry |
+| `TIMEOUT_ERROR` | Request timed out | Increase timeout or retry |
+| `VALIDATION_ERROR` | Invalid response data | Check API response format |
+| `CACHE_ERROR` | Cache operation failed | Clear cache and retry |
+
+## Links
+
+- Docs: https://queryflow.oxog.dev
+- GitHub: https://github.com/ersinkoc/queryflow

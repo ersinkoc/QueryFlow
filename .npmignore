@@ -1,0 +1,32 @@
+# Source files
+src/
+tests/
+examples/
+docs/
+mcp-server/
+website/
+
+# Config files
+.eslintrc.cjs
+.prettierrc
+tsconfig.json
+tsup.config.ts
+vitest.config.ts
+
+# IDE
+.vscode/
+.idea/
+
+# Git
+.git/
+.github/
+.gitignore
+
+# Development
+node_modules/
+coverage/
+*.log
+*.tsbuildinfo
+
+# Misc
+*.map

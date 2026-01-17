@@ -1,0 +1,27 @@
+# Dependencies
+node_modules
+dist
+*.log
+
+# Build outputs
+dist/
+dist-ssr/
+*.local
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Testing
+coverage/
+*.lcov
+
+# Website
+website/dist/
+website/node_modules/

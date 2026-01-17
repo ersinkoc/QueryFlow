@@ -1,0 +1,108 @@
+{
+  "name": "@oxog/queryflow",
+  "version": "1.0.0",
+  "description": "Intelligent data fetching with predictive caching, offline-first sync, and real-time subscriptions",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./plugins": {
+      "import": "./dist/plugins/index.js",
+      "require": "./dist/plugins/index.cjs"
+    },
+    "./react": {
+      "import": "./dist/bindings/react/index.js",
+      "require": "./dist/bindings/react/index.cjs"
+    },
+    "./vue": {
+      "import": "./dist/bindings/vue/index.js",
+      "require": "./dist/bindings/vue/index.cjs"
+    },
+    "./svelte": {
+      "import": "./dist/bindings/svelte/index.js",
+      "require": "./dist/bindings/svelte/index.cjs"
+    },
+    "./solid": {
+      "import": "./dist/bindings/solid/index.js",
+      "require": "./dist/bindings/solid/index.cjs"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE"
+  ],
+  "sideEffects": false,
+  "scripts": {
+    "build": "tsup",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "lint": "eslint src/",
+    "format": "prettier --write .",
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "query",
+    "fetch",
+    "cache",
+    "data-fetching",
+    "react-query",
+    "tanstack-query",
+    "offline-first",
+    "real-time",
+    "websocket",
+    "state-management",
+    "typescript",
+    "react"
+  ],
+  "author": "Ersin Koç",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ersinkoc/queryflow.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ersinkoc/queryflow/issues"
+  },
+  "homepage": "https://queryflow.oxog.dev",
+  "engines": {
+    "node": ">=18"
+  },
+  "peerDependencies": {
+    "react": ">=18.0.0",
+    "react-dom": ">=18.0.0",
+    "vue": ">=3.0.0",
+    "svelte": ">=4.0.0",
+    "solid-js": ">=1.0.0"
+  },
+  "peerDependenciesMeta": {
+    "react": { "optional": true },
+    "react-dom": { "optional": true },
+    "vue": { "optional": true },
+    "svelte": { "optional": true },
+    "solid-js": { "optional": true }
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/react": "^18.0.0",
+    "@types/react-dom": "^18.0.0",
+    "@vitest/coverage-v8": "^2.0.0",
+    "eslint": "^9.0.0",
+    "prettier": "^3.0.0",
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0",
+    "solid-js": "^1.0.0",
+    "vue": "^3.0.0",
+    "svelte": "^4.0.0",
+    "tsup": "^8.0.0",
+    "typescript": "^5.0.0",
+    "vitest": "^2.0.0"
+  }
+}
