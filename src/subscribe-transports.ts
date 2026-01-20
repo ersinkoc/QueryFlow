@@ -1,4 +1,4 @@
-import type { SubscribeOptions } from '../types.js';
+import type { SubscribeOptions } from './types.js';
 
 export interface SubscriptionTransport<TData = unknown> {
   connect(): Promise<void>;
@@ -150,6 +150,7 @@ class SSETransport<TData = unknown> implements SubscriptionTransport<TData> {
   disconnect(): void {
     this.eventSource?.close();
     this.eventSource = null;
+    this.closeHandlers.forEach(handler => handler());
   }
 
   pause(): void {
@@ -178,6 +179,7 @@ class PollingTransport<TData = unknown> implements SubscriptionTransport<TData> 
   private messageHandlers = new Set<(data: TData) => void>();
   private errorHandlers = new Set<(error: Error) => void>();
   private closeHandlers = new Set<() => void>();
+  private isPaused = false;
 
   constructor(
     private url: string,
@@ -185,6 +187,7 @@ class PollingTransport<TData = unknown> implements SubscriptionTransport<TData> 
   ) {}
 
   async connect(): Promise<void> {
+    this.isPaused = false;
     await this.poll();
     const interval = this.options.interval ?? 5000;
     this.intervalId = setInterval(() => this.poll(), interval) as unknown as number;
@@ -195,10 +198,17 @@ class PollingTransport<TData = unknown> implements SubscriptionTransport<TData> 
       clearInterval(this.intervalId);
       this.intervalId = null;
     }
+    if (!this.isPaused) {
+      this.closeHandlers.forEach(handler => handler());
+    }
   }
 
   pause(): void {
-    this.disconnect();
+    this.isPaused = true;
+    if (this.intervalId !== null) {
+      clearInterval(this.intervalId);
+      this.intervalId = null;
+    }
   }
 
   resume(): void {

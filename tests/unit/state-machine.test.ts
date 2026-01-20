@@ -16,7 +16,7 @@ describe('StateMachine', () => {
     sm.transition('loading');
     sm.transition('success', { data: 'test' });
     expect(sm.getState()).toBe('success');
-    expect(sm.getData()).toBe({ data: 'test' });
+    expect(sm.getData()).toEqual({ data: 'test' });
   });
 
   it('should transition from loading to error', async () => {

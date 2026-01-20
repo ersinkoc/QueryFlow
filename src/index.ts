@@ -1,5 +1,5 @@
 export { createClient, Client, type QueryFlowClient } from './client.js';
-export { query, QueryInstance, getQueryContext } from './query.js';
+export { query, QueryInstance, getQueryContext, setQueryContext } from './query.js';
 export { mutation, MutationInstance } from './mutation.js';
 export { subscribe, SubscriptionInstance } from './subscribe.js';
 export type {

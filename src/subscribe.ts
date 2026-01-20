@@ -25,8 +25,8 @@ export class SubscriptionInstance<TData = unknown> {
   }
 
   async connect(): Promise<void> {
-    const { SubscriptionTransport } = await import('./subscribe-transports.js');
-    this.transport = SubscriptionTransport.create(this.url, this.options);
+    const { SubscriptionTransportFactory } = await import('./subscribe-transports.js');
+    this.transport = SubscriptionTransportFactory.create(this.url, this.options);
 
     try {
       await this.transport.connect();

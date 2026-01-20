@@ -46,8 +46,61 @@ export class Kernel<TContext = unknown> {
     this.eventBus.emit(event, data);
   }
 
-  async emitAsync(event: string, data?: unknown): Promise<void> {
+  async emitAsync<T = unknown>(event: string, data?: unknown): Promise<T> {
+    // For request:fetch events, we need to actually fetch the data
+    if (event === 'request:fetch' && data && typeof data === 'object') {
+      const { url, options, signal } = data as { url: string; options?: unknown; signal?: AbortSignal };
+      const fullUrl = this.buildUrl(url, options);
+
+      const response = await fetch(fullUrl, {
+        signal,
+        headers: this.getHeaders(),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      const responseData = await response.json();
+      return { data: responseData } as T;
+    }
+
     this.eventBus.emit(event, data);
+    return undefined as T;
+  }
+
+  private buildUrl(url: string, options?: unknown): string {
+    const baseUrl = this.config.baseUrl ?? '';
+    let fullUrl = url.startsWith('http') ? url : `${baseUrl}${url}`;
+
+    // Replace path params
+    if (options && typeof options === 'object') {
+      const opts = options as { params?: Record<string, string | number>; searchParams?: Record<string, string | number | boolean> };
+      if (opts.params) {
+        for (const [key, value] of Object.entries(opts.params)) {
+          fullUrl = fullUrl.replace(`:${key}`, String(value));
+        }
+      }
+      // Add search params
+      if (opts.searchParams) {
+        const params = new URLSearchParams();
+        for (const [key, value] of Object.entries(opts.searchParams)) {
+          params.append(key, String(value));
+        }
+        const queryString = params.toString();
+        if (queryString) {
+          fullUrl += (fullUrl.includes('?') ? '&' : '?') + queryString;
+        }
+      }
+    }
+
+    return fullUrl;
+  }
+
+  private getHeaders(): Record<string, string> {
+    const headers = this.config.headers;
+    if (!headers) return {};
+    return typeof headers === 'function' ? headers() : headers;
   }
 
   getContext(): TContext {

@@ -44,14 +44,19 @@ describe('RequestHandler', () => {
   it('should handle timeout', async () => {
     requestHandler = new RequestHandler({ baseUrl: 'https://api.com', timeout: 100 });
 
-    const controller = new AbortController();
-    mockFetch.mockImplementationOnce(() => {
+    mockFetch.mockImplementation((_url: string, options: { signal?: AbortSignal }) => {
       return new Promise((_, reject) => {
-        setTimeout(() => reject(new DOMException('Aborted', 'AbortError')), 150);
+        const signal = options?.signal;
+        if (signal) {
+          signal.addEventListener('abort', () => {
+            const error = new DOMException('Aborted', 'AbortError');
+            reject(error);
+          });
+        }
       });
     });
 
-    await expect(requestHandler.fetch('/test')).rejects.toThrow('Request timed out');
+    await expect(requestHandler.fetch('/test', { retry: false })).rejects.toThrow(/Request timed out/);
   });
 
   it('should dedupe concurrent requests', async () => {

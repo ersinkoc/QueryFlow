@@ -4,6 +4,7 @@ import type { StateSnapshot } from './core/state-machine.js';
 import { StateMachine } from './core/state-machine.js';
 import { buildFullURL } from './core/url-parser.js';
 import { QueryFlowError } from './errors.js';
+import { getQueryContext } from './query.js';
 
 export class MutationInstance<TData = unknown, TVariables = unknown, TError = Error> {
   private kernel: Kernel;

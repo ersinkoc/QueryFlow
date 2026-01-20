@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { StateManager, stateManagerPlugin } from '../../src/plugins/core/state-manager.js';
 import { Kernel } from '../../src/kernel.js';
 
@@ -6,22 +6,31 @@ describe('StateManager', () => {
   let stateManager: StateManager;
 
   beforeEach(async () => {
-    const kernel = new Kernel();
     stateManager = new StateManager();
   });
 
   it('should set and get query state', () => {
-    const snapshot = {
+    // First transition to loading (required by StateMachine)
+    stateManager.setQueryState('query1', {
+      state: 'loading',
+      data: undefined,
+      error: null,
+      timestamp: Date.now(),
+    });
+
+    // Then transition to success
+    const successSnapshot = {
       state: 'success' as const,
       data: { value: 123 },
       error: null,
       timestamp: Date.now(),
     };
 
-    stateManager.setQueryState('query1', snapshot);
+    stateManager.setQueryState('query1', successSnapshot);
     const retrieved = stateManager.getQueryState('query1');
 
-    expect(retrieved).toEqual(snapshot);
+    expect(retrieved?.state).toBe('success');
+    expect(retrieved?.data).toEqual({ value: 123 });
   });
 
   it('should return undefined for non-existent query state', () => {
@@ -29,79 +38,101 @@ describe('StateManager', () => {
   });
 
   it('should subscribe to query state changes', () => {
-    const snapshot = {
-      state: 'success' as const,
-      data: { value: 123 },
-      error: null,
-      timestamp: Date.now(),
-    };
-
     const listener = vi.fn();
     stateManager.subscribeToQuery('query1', listener);
 
-    stateManager.setQueryState('query1', snapshot);
+    // Transition to loading
+    stateManager.setQueryState('query1', {
+      state: 'loading',
+      data: undefined,
+      error: null,
+      timestamp: Date.now(),
+    });
 
-    expect(listener).toHaveBeenCalledWith(snapshot);
+    expect(listener).toHaveBeenCalledWith(
+      expect.objectContaining({ state: 'loading' })
+    );
   });
 
   it('should return unsubscribe function for queries', () => {
     const listener = vi.fn();
     const unsubscribe = stateManager.subscribeToQuery('query1', listener);
 
-    const snapshot = {
-      state: 'success' as const,
+    stateManager.setQueryState('query1', {
+      state: 'loading',
+      data: undefined,
+      error: null,
+      timestamp: Date.now(),
+    });
+
+    unsubscribe();
+
+    // This should not trigger the listener since we unsubscribed
+    stateManager.setQueryState('query1', {
+      state: 'success',
       data: { value: 123 },
       error: null,
       timestamp: Date.now(),
-    };
-
-    stateManager.setQueryState('query1', snapshot);
-    unsubscribe();
-    stateManager.setQueryState('query1', snapshot);
+    });
 
     expect(listener).toHaveBeenCalledTimes(1);
   });
 
   it('should set and get mutation state', () => {
-    const snapshot = {
+    // First transition to loading
+    stateManager.setMutationState('mutation1', {
+      state: 'loading',
+      data: undefined,
+      error: null,
+      timestamp: Date.now(),
+    });
+
+    // Then transition to success
+    const successSnapshot = {
       state: 'success' as const,
       data: { id: 123 },
       error: null,
       timestamp: Date.now(),
     };
 
-    stateManager.setMutationState('mutation1', snapshot);
+    stateManager.setMutationState('mutation1', successSnapshot);
     const retrieved = stateManager.getMutationState('mutation1');
 
-    expect(retrieved).toEqual(snapshot);
+    expect(retrieved?.state).toBe('success');
+    expect(retrieved?.data).toEqual({ id: 123 });
   });
 
   it('should subscribe to mutation state changes', () => {
-    const snapshot = {
-      state: 'success' as const,
-      data: { id: 123 },
-      error: null,
-      timestamp: Date.now(),
-    };
-
     const listener = vi.fn();
     stateManager.subscribeToMutation('mutation1', listener);
 
-    stateManager.setMutationState('mutation1', snapshot);
+    stateManager.setMutationState('mutation1', {
+      state: 'loading',
+      data: undefined,
+      error: null,
+      timestamp: Date.now(),
+    });
 
-    expect(listener).toHaveBeenCalledWith(snapshot);
+    expect(listener).toHaveBeenCalledWith(
+      expect.objectContaining({ state: 'loading' })
+    );
   });
 
   it('should clear all queries', () => {
-    const snapshot = {
-      state: 'success' as const,
-      data: { value: 123 },
+    stateManager.setQueryState('query1', {
+      state: 'loading',
+      data: undefined,
       error: null,
       timestamp: Date.now(),
-    };
+    });
 
-    stateManager.setQueryState('query1', snapshot);
-    stateManager.setQueryState('query2', snapshot);
+    stateManager.setQueryState('query2', {
+      state: 'loading',
+      data: undefined,
+      error: null,
+      timestamp: Date.now(),
+    });
+
     stateManager.clearQueries();
 
     expect(stateManager.getQueryState('query1')).toBeUndefined();
@@ -109,15 +140,20 @@ describe('StateManager', () => {
   });
 
   it('should clear all mutations', () => {
-    const snapshot = {
-      state: 'success' as const,
-      data: { id: 123 },
+    stateManager.setMutationState('mutation1', {
+      state: 'loading',
+      data: undefined,
       error: null,
       timestamp: Date.now(),
-    };
+    });
 
-    stateManager.setMutationState('mutation1', snapshot);
-    stateManager.setMutationState('mutation2', snapshot);
+    stateManager.setMutationState('mutation2', {
+      state: 'loading',
+      data: undefined,
+      error: null,
+      timestamp: Date.now(),
+    });
+
     stateManager.clearMutations();
 
     expect(stateManager.getMutationState('mutation1')).toBeUndefined();

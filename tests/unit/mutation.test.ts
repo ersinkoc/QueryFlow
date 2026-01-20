@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { mutation, MutationInstance, setQueryContext } from '../../src/mutation.js';
+import { mutation, MutationInstance } from '../../src/mutation.js';
+import { setQueryContext } from '../../src/query.js';
 import { Kernel } from '../../src/kernel.js';
 import type { MutationOptions } from '../../src/types.js';
 

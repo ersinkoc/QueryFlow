@@ -1,6 +1,11 @@
 import type { Plugin, SubscribeOptions } from '../../types.js';
 import type { Kernel } from '../../kernel.js';
-import type { SubscriptionTransport, WebSocketTransport, SSETransport, PollingTransport } from '../../subscribe-transports.js';
+import {
+  type SubscriptionTransport,
+  WebSocketTransport,
+  SSETransport,
+  PollingTransport,
+} from '../../subscribe-transports.js';
 
 interface RealtimeContext {
   realtime: {
@@ -19,17 +24,14 @@ export const realtimePlugin: Plugin<RealtimeContext> = {
 
     context.realtime = {
       createWebSocket: <TData>(url: string, options: SubscribeOptions<TData>) => {
-        const { WebSocketTransport } = require('../../subscribe-transports.js');
         return new WebSocketTransport<TData>(url, options);
       },
 
       createSSE: <TData>(url: string, options: SubscribeOptions<TData>) => {
-        const { SSETransport } = require('../../subscribe-transports.js');
         return new SSETransport<TData>(url, options);
       },
 
       createPolling: <TData>(url: string, options: SubscribeOptions<TData>) => {
-        const { PollingTransport } = require('../../subscribe-transports.js');
         return new PollingTransport<TData>(url, options);
       },
     };
